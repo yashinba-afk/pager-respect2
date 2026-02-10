@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ريسبكت</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #0a0f0a;
+  color: #00ff41;
+  font-family: 'Courier New', Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.top-bar {
+  background: #1a0000;
+  border-bottom: 2px solid #ff0000;
+  text-align: center;
+  padding: 8px;
+}
+.top-bar .title {
+  color: #ff3333;
+  font-size: 1.4em;
+  font-weight: bold;
+  letter-spacing: 4px;
+  text-shadow: 0 0 15px #ff0000;
+  font-family: serif;
+}
+
+.status-bar {
+  background: #0d150d;
+  border-bottom: 1px solid #1a3a1a;
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85em;
+}
+.status-bar .pager-icon { font-size: 1.4em; }
+.status-bar .tab-name {
+  color: #00ff41;
+  font-size: 1em;
+  font-weight: bold;
+  text-shadow: 0 0 8px #00ff41;
+}
+.status-bar .time-label { color: #00cc33; font-size: 0.85em; direction: ltr; }
+
+/* شاشة البيجر */
+.screen {
+  background: #0d1f0d;
+  margin: 10px;
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid #1a4a1a;
+  min-height: 90px;
+  position: relative;
+  box-shadow: inset 0 0 30px rgba(0,255,65,0.05);
+}
+.screen-line {
+  position: absolute;
+  top: 10px; left: 12px;
+  width: 25px; height: 2px;
+  background: #00ff41; opacity: 0.6;
+}
+.screen-display {
+  color: #00ff41;
+  font-size: 1.6em;
+  font-weight: bold;
+  text-shadow: 0 0 12px #00ff41;
+  min-height: 50px;
+  word-break: break-all;
+  letter-spacing: 2px;
+  line-height: 1.5;
+}
+.screen-display.empty { color: #1a4a1a; font-size: 1em; font-weight: normal; }
+
+/* أزرار الوضع */
+.mode-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 10px;
+  margin: 6px 0;
+}
+.mode-btn {
+  background: #0d200d;
+  border: 1px solid #1a5a1a;
+  border-radius: 10px;
+  color: #00cc33;
+  font-size: 1.1em;
+  padding: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  text-align: center;
+}
+.mode-btn.active {
+  background: #1a4a1a;
+  border-color: #00ff41;
+  color: #00ff41;
+  text-shadow: 0 0 10px #00ff41;
+  box-shadow: 0 0 12px rgba(0,255,65,0.2);
+}
+.mode-btn:active { transform: scale(0.96); }
+
+/* حقل الكتابة */
+.input-area {
+  margin: 0 10px 6px;
+  position: relative;
+}
+.text-input {
+  width: 100%;
+  background: #0d200d;
+  border: 1px solid #1a5a1a;
+  border-radius: 10px;
+  color: #00ff41;
+  font-family: 'Courier New', monospace;
+  font-size: 1em;
+  padding: 13px 15px;
+  outline: none;
+  letter-spacing: 1px;
+  caret-color: #00ff41;
+}
+.text-input:focus {
+  border-color: #00ff41;
+  box-shadow: 0 0 12px rgba(0,255,65,0.2);
+}
+.text-input::placeholder { color: #1a5a1a; }
+
+/* زر الاستقبال */
+.receive-btn {
+  margin: 0 10px 6px;
+  background: #0d200d;
+  border: 1px solid #1a5a1a;
+  border-radius: 10px;
+  color: #00cc33;
+  font-size: 1.1em;
+  padding: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  width: calc(100% - 20px);
+  text-align: center;
+  transition: all 0.2s;
+}
+.receive-btn:active { background: #1a4a1a; transform: scale(0.98); }
+
+/* لوحة الأرقام */
+.numpad {
+  padding: 0 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  margin-bottom: 7px;
+}
+.num-btn {
+  background: #0d200d;
+  border: 1px solid #1a5a1a;
+  border-radius: 12px;
+  color: #00ff41;
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 16px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  text-shadow: 0 0 8px #00ff41;
+  transition: all 0.15s;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+  user-select: none;
+}
+.num-btn:active {
+  background: #1a5a1a;
+  transform: scale(0.93);
+}
+.num-btn.dash { font-size: 2em; color: #00cc33; }
+.num-btn.clear { color: #00ff41; font-size: 1em; }
+
+/* حذف الكل */
+.delete-btn {
+  margin: 0 10px 8px;
+  background: #3a0000;
+  border: 1px solid #880000;
+  border-radius: 10px;
+  color: #ff4444;
+  font-size: 1.1em;
+  padding: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  width: calc(100% - 20px);
+  text-align: center;
+  text-shadow: 0 0 10px #ff3333;
+  transition: all 0.2s;
+  user-select: none;
+}
+.delete-btn:active { background: #550000; transform: scale(0.97); }
+
+footer {
+  text-align: center;
+  padding: 8px;
+  color: #1a5a1a;
+  font-size: 0.75em;
+  letter-spacing: 2px;
+  border-top: 1px solid #0d200d;
+  margin-top: auto;
+}
+
+/* نافذة النتيجة */
+.result-popup {
+  display: none;
+  position: fixed;
+  top:0;left:0;right:0;bottom:0;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.result-popup.show { display: flex; }
+.result-card {
+  background: #0a1a0a;
+  border: 2px solid #00ff41;
+  border-radius: 16px;
+  padding: 25px 20px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 0 40px rgba(0,255,65,0.3);
+  text-align: center;
+}
+.res-label { color: #00aa33; font-size: 0.8em; letter-spacing: 2px; margin-bottom: 12px; }
+.res-text {
+  color: #00ff41;
+  font-size: 1.4em;
+  text-shadow: 0 0 15px #00ff41;
+  word-break: break-all;
+  letter-spacing: 3px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+.res-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.res-btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #00ff41;
+  background: transparent;
+  color: #00ff41;
+  font-family: inherit;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.res-btn:active { background: rgba(0,255,65,0.15); }
+.res-btn.close-btn { border-color: #ff4444; color: #ff4444; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="title">ريسبكت</div>
+</div>
+
+<div class="status-bar">
+  <div class="pager-icon">📟</div>
+  <div class="tab-name" id="tab-name">شفرات ريسبكت</div>
+  <div class="time-label"><span id="clock"></span> &nbsp; RESPECT ص</div>
+</div>
+
+<!-- شاشة العرض -->
+<div class="screen">
+  <div class="screen-line"></div>
+  <div class="screen-display empty" id="screen-display">فك شفرات ريسبكت قريبا</div>
+</div>
+
+<!-- أزرار الوضع -->
+<div class="mode-btns">
+  <button class="mode-btn" id="btn-decode" onclick="setMode('decode')">فك شفرة</button>
+  <button class="mode-btn active" id="btn-encode" onclick="setMode('encode')">تشفير</button>
+</div>
+
+<!-- حقل الكتابة -->
+<div class="input-area">
+  <input class="text-input" id="text-input" type="text"
+    placeholder="اكتب هنا أو استخدم لوحة الأرقام..."
+    oninput="onTyping()" />
+</div>
+
+<!-- زر الاستقبال -->
+<button class="receive-btn" onclick="processInput()">📟 استقبال</button>
+
+<!-- لوحة الأرقام -->
+<div class="numpad">
+  <button class="num-btn" onclick="pressNum('1')">1</button>
+  <button class="num-btn" onclick="pressNum('2')">2</button>
+  <button class="num-btn" onclick="pressNum('3')">3</button>
+  <button class="num-btn" onclick="pressNum('4')">4</button>
+  <button class="num-btn" onclick="pressNum('5')">5</button>
+  <button class="num-btn" onclick="pressNum('6')">6</button>
+  <button class="num-btn" onclick="pressNum('7')">7</button>
+  <button class="num-btn" onclick="pressNum('8')">8</button>
+  <button class="num-btn" onclick="pressNum('9')">9</button>
+  <button class="num-btn dash" onclick="pressNum('-')">-</button>
+  <button class="num-btn" onclick="pressNum('0')">0</button>
+  <button class="num-btn clear" onclick="deleteLast()">مسح</button>
+</div>
+
+<button class="delete-btn" onclick="clearAll()">حذف الكل</button>
+
+<footer>Pager Encryption System</footer>
+
+<!-- نافذة النتيجة -->
+<div class="result-popup" id="result-popup">
+  <div class="result-card">
+    <div class="res-label" id="res-label">// النتيجة:</div>
+    <div class="res-text" id="res-text"></div>
+    <div class="res-btns">
+      <button class="res-btn" onclick="copyResult()">نسخ 📋</button>
+      <button class="res-btn close-btn" onclick="closeResult()">إغلاق ✕</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// خريطة التشفير: حرف عربي → أرقام البيجر
+// حسب جدول شفرة ريسبكت البيجر
+// =============================================
+const AR_ENCODE = {
+  'أ':1,'ا':1,'إ':1,'آ':1,'ء':1,
+  'ب':2,
+  'ت':3,
+  'ث':4,
+  'ج':5,
+  'ح':6,
+  'خ':7,
+  'د':8,
+  'ذ':9,
+  'ر':10,
+  'ز':11,
+  'س':12,
+  'ش':13,
+  'ص':14,
+  'ض':15,
+  'ط':16,
+  'ظ':17,
+  'ع':18,
+  'غ':19,
+  'ف':20,
+  'ق':21,
+  'ك':22,
+  'ل':23,
+  'م':24,
+  'ن':25,
+  'ه':26,
+  'و':27,
+  'ي':28,'ى':28,'ة':28,
+  ' ':' '
+};
+
+// خريطة العكس: رقم → حرف
+const NUM_DECODE = {};
+for(const [ch, num] of Object.entries(AR_ENCODE)){
+  if(ch===' ') continue;
+  const k = String(num);
+  if(!NUM_DECODE[k]) NUM_DECODE[k]=[];
+  if(!NUM_DECODE[k].includes(ch)) NUM_DECODE[k].push(ch);
+}
+
+let mode = 'encode';
+
+// ساعة
+function updateClock(){
+  const n = new Date();
+  const h = n.getHours(), m = n.getMinutes();
+  document.getElementById('clock').textContent =
+    (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+}
+updateClock(); setInterval(updateClock,1000);
+
+// تحديد الوضع
+function setMode(m){
+  mode = m;
+  clearAll();
+  document.getElementById('btn-encode').classList.toggle('active', m==='encode');
+  document.getElementById('btn-decode').classList.toggle('active', m==='decode');
+  document.getElementById('tab-name').textContent =
+    m==='encode' ? 'شفرات ريسبكت' : 'فك الشفرة';
+  document.getElementById('text-input').placeholder =
+    m==='encode' ? 'اكتب النص العربي هنا...' : 'أدخل الأرقام مفصولة بـ - مثال: 1-8-0-7';
+}
+
+// الكتابة من الكيبورد
+function onTyping(){
+  const val = document.getElementById('text-input').value;
+  updateScreen(val);
+}
+
+// تحديث الشاشة
+function updateScreen(val){
+  const el = document.getElementById('screen-display');
+  if(!val){
+    el.textContent = 'فك شفرات ريسبكت قريبا';
+    el.className = 'screen-display empty';
+  } else {
+    el.textContent = val;
+    el.className = 'screen-display';
+  }
+}
+
+// ضغط زر رقم
+function pressNum(n){
+  const inp = document.getElementById('text-input');
+  inp.value += n;
+  updateScreen(inp.value);
+  inp.focus();
+}
+
+// مسح آخر حرف
+function deleteLast(){
+  const inp = document.getElementById('text-input');
+  inp.value = inp.value.slice(0,-1);
+  updateScreen(inp.value);
+}
+
+// حذف الكل
+function clearAll(){
+  document.getElementById('text-input').value = '';
+  updateScreen('');
+}
+
+// معالجة الإدخال عند الاستقبال
+function processInput(){
+  const val = document.getElementById('text-input').value.trim();
+  if(!val) return;
+
+  if(mode === 'encode'){
+    // تشفير: عربي → أرقام
+    let res = [];
+    let i = 0;
+    while(i < val.length){
+      const ch = val[i];
+      // لا الشمسية
+      if(ch==='ل' && i+1<val.length && val[i+1]==='ا'){
+        res.push('71'); i+=2; continue;
+      }
+      if(ch===' '){ res.push('|'); }
+      else if(AR_ENCODE[ch] !== undefined){
+        res.push(String(AR_ENCODE[ch]));
+      } else {
+        res.push('?');
+      }
+      i++;
+    }
+    showResult('// النص المشفر بأرقام البيجر:', res.join('-'));
+
+  } else {
+    // فك: أرقام → عربي
+    const parts = val.split('-').filter(p=>p.length>0);
+    let res = '';
+    for(const p of parts){
+      if(p==='|'){ res+=' '; }
+      else if(NUM_DECODE[p]){ res += NUM_DECODE[p][0]; }
+      else { res += '['+p+']'; }
+    }
+    showResult('// الرسالة المفككة:', res || '---');
+  }
+}
+
+// عرض النتيجة
+function showResult(label, text){
+  document.getElementById('res-label').textContent = label;
+  document.getElementById('res-text').textContent = text;
+  document.getElementById('result-popup').classList.add('show');
+}
+
+function closeResult(){
+  document.getElementById('result-popup').classList.remove('show');
+}
+
+function copyResult(){
+  const text = document.getElementById('res-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = event.currentTarget;
+    btn.textContent = '✓ تم النسخ';
+    setTimeout(()=>btn.textContent='نسخ 📋',1500);
+  });
+}
+
+// Enter = استقبال
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter') processInput();
+});
+</script>
+</body>
+</html>
