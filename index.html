@@ -2,7 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a0000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ريسبكت">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="شفرة ريسبكت البيجر - نظام تشفير الرسائل">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%231a0000' width='200' height='200'/%3E%3Ctext x='100' y='120' font-size='80' text-anchor='middle' fill='%23ff3333' font-family='serif'%3Eر%3C/text%3E%3C/svg%3E">
 <title>ريسبكت</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -274,7 +282,7 @@ footer {
 <!-- شاشة العرض -->
 <div class="screen">
   <div class="screen-line"></div>
-  <div class="screen-display empty" id="screen-display">فك شفرات ريسبكت قريبا</div>
+  <div class="screen-display empty" id="screen-display">صنع عن طريق ياسين</div>
 </div>
 
 <!-- أزرار الوضع -->
@@ -311,7 +319,7 @@ footer {
 
 <button class="delete-btn" onclick="clearAll()">حذف الكل</button>
 
-<footer>Pager Encryption System</footer>
+<footer>صنع عن طريق ياسين | Pager Encryption System</footer>
 
 <!-- نافذة النتيجة -->
 <div class="result-popup" id="result-popup">
@@ -527,6 +535,35 @@ function fallbackCopy(text){
 document.addEventListener('keydown', e=>{
   if(e.key==='Enter') processInput();
 });
+
+// =============================================
+// PWA - Service Worker Registration
+// =============================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('✅ PWA جاهز'))
+      .catch(err => console.log('Service Worker error:', err));
+  });
+}
+
+// زر تثبيت التطبيق
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // إظهار رسالة التثبيت بعد 3 ثواني
+  setTimeout(() => {
+    if (confirm('📱 تبي تثبت تطبيق ريسبكت على جوالك؟')) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        deferredPrompt = null;
+      });
+    }
+  }, 3000);
+});
+
 </script>
 </body>
 </html>
